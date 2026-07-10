@@ -1,10 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const swaggerUi = require('swagger-ui-express');
+const express = require("express");
+const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
 
-const membersRouter = require('./routes/members');
-const uploadImageRouter = require('./routes/uploadImage');
-const swaggerDoc = require('./fixtures/swagger.json');
+const membersRouter = require("./routes/members");
+const uploadImageRouter = require("./routes/uploadImage");
+const swaggerDoc = require("./fixtures/swagger.json");
 
 const app = express();
 
@@ -22,7 +22,12 @@ const app = express();
 // ✅ 未匹配的路由（如 GET /unknown）Express 預設會回 404，不需另外加 middleware
 //
 // ⚠️ **最後不需呼叫 app.listen()** — 這個部分交由 server.js 負責（分離「組裝」跟「啟動」，這樣 test.js 可以 supertest 直接戳 app、不佔 port）。
+app.use(cors());
+app.use(express.json());
 
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+app.use("/members", membersRouter);
+app.use("/uploadImage", uploadImageRouter);
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 module.exports = app;
