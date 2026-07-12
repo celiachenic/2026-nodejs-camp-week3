@@ -21,8 +21,8 @@ let nextId = members.length + 1;
 // - 任務二的 GET / 會使用到這個函式
 
 function filterByQuery(list, query) {
-  if (query === undefined) return list;
-  return list.filter((item) => item.level === query);
+  if (!query.level) return list;
+  return list.filter((item) => item.level === query.level);
 }
 
 // 函式二：validateBody(body)
@@ -32,9 +32,11 @@ function filterByQuery(list, query) {
 // - 任務三的 POST / 會使用到這個函式
 
 function validateBody(body) {
-  const { name, level } = body;
-  if (name == null || level == null || name === {} || level === {}) {
-    return { valid: false, error: "缺 name 或 level" };
+ if (!body || body.name == null || body.level == null) {
+    return {
+      valid: false,
+      error: "缺 name 或 level",
+    };
   }
   return { valid: true };
 }
@@ -54,8 +56,7 @@ const router = express.Router();
 // - 提示：filterByQuery(members, req.query)
 
 router.get("/", (req, res) => {
-  const { level } = req.query;
-  const data = filterByQuery(members, level);
+  const data = filterByQuery(members, req.query);
   return res.status(200).json(data);
 });
 
@@ -88,13 +89,11 @@ router.get("/:id", (req, res) => {
 router.post("/", (req, res) => {
   const isValid = validateBody(req.body);
   if (!isValid.valid) {
-    return res.status(400).json({ error: "缺 name 或 level" });
+    return res.status(400).json({ error: isValid.error });
   }
-  const { name, level } = req.body;
   const newMember = {
-    id: nextId++,
-    name,
-    level,
+    ...req.body,
+    id:nextId++
   };
   members.push(newMember);
   return res.status(201).json(newMember);
